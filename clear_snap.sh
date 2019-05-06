@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## FOR LIKE DEBIAN
+
 NAME=`snap list --all | grep disabled | awk '{print $1}'`
 REV=`snap list --all | grep disabled | awk '{print $3}'`
 
