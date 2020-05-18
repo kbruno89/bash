@@ -1,6 +1,10 @@
 #!/bin/bash
 
-## FOR LIKE DEBIAN
+## FOR LIKE DEBIAN / UBUNTU BASED
+
+## REMOVE SNAP DUPLICATE (OLD VERSION) ENTRIES
+## CLEAN OLD JOURNAL FILES
+## HELP WITH DISK SPACE SIZE
 
 NAME=`snap list --all | grep disabled | awk '{print $1}'`
 REV=`snap list --all | grep disabled | awk '{print $3}'`
