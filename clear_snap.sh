@@ -1,10 +1,8 @@
 #!/bin/bash
 
-## FOR LIKE DEBIAN / UBUNTU BASED
-
-## REMOVE SNAP DUPLICATE (OLD VERSION) ENTRIES
+## REMOVE SNAP DUPLICATED (OLD VERSION) ENTRIES
 ## CLEAN OLD JOURNAL FILES
-## HELP WITH DISK SPACE SIZE
+## THIS A LITTLE HELP WITH DISK SPACE SIZE
 
 NAME=`snap list --all | grep disabled | awk '{print $1}'`
 REV=`snap list --all | grep disabled | awk '{print $3}'`
@@ -21,5 +19,7 @@ do
 done
 
 echo -ne "\n\n Clean journal files:\n\n"
+
 journalctl --rotate && journalctl --vacuum-size=256M
+
 echo -ne "\n\n"
