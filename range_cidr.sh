@@ -52,6 +52,7 @@ echo -ne "\n\n    See the result:\n\n"
 
 for i in `cat domain.txt` ; do
 
+echo $i
 cat $i.txt
 
 done
