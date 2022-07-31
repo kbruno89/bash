@@ -21,7 +21,7 @@ echo -e '\e[36;3m' "    IP:  \e[m" $IP
 echo -e '\e[36;3m' "    PORTA:  \e[m" $PORTA
 echo -e '\e[36;3m' "    PROTOCOLO:  \e[m" $PROTO
 echo -e '\e[36;3m' "    HOSTNAME:  \e[m" $NAME
-echo -e '\e[36;3m' "    SUBNET VPN:  \e[m" 10.100.0.0/24
+echo -e '\e[36;3m' "    SUBNET VPN:  \e[m" 10.8.0.0/24
 echo -e '\e[36;3m' "    CAMINHO DA CONF CLIENT.OVPN:  \e[m" /etc/openvpn/client/client.ovpn
 echo ""
 echo ""
@@ -66,14 +66,12 @@ echo "dh /etc/openvpn/server/keys/dh.pem" >> server/server.conf
 echo "cipher AES-256-CBC" >> server/server.conf
 echo "data-ciphers AES-256-CBC:AES-256-GCM:AES-128-GCM" >> server/server.conf
 echo "topology subnet" >> server/server.conf
-echo "server 10.100.0.0 255.255.255.0" >> server/server.conf
+echo "server 10.8.0.0 255.255.255.0" >> server/server.conf
 echo "ifconfig-pool-persist ipp.txt" >> server/server.conf
 echo "auth SHA512" >> server/server.conf
 echo "push \"dhcp-option DNS $DNS\"" >> server/server.conf
-echo "push \"route 192.168.0.0 255.255.0.0\"" >> server/server.conf
-echo "push \"route 172.16.0.0 255.240.0.0\"" >> server/server.conf
-echo "push \"route 10.0.0.0 255.255.0.0\"" >> server/server.conf
-echo "push \"route-gateway 10.100.0.1\"" >> server/server.conf
+echo "push \"route $REDE\"" >> server/server.conf
+echo "push \"route-gateway 10.8.0.1\"" >> server/server.conf
 echo "push \"topology subnet\"" >> server/server.conf
 echo "client-to-client" >> server/server.conf
 echo "verb 3" >> server/server.conf
@@ -223,18 +221,22 @@ echo ""
 echo -e '\e[36;3m' " QUAL SIGLA DO ESTADO PARA O CERTIFICADO?   \e[m"
 echo "------------------------------------------------------------- "
 read -e ESTADO
+[[ -z $ESTADO ]] && { echo "FAVOR PREENCHER A SIGLA DO ESTADO..." && sleep 3 && fnINFO ; }
 echo ""
 echo -e '\e[36;3m' " QUAL CIDADE PARA O CERTIFICADO?    \e[m"
 echo "------------------------------------------------------------- "
 read -e CIDADE
+[[ -z $CIDADE ]] && { echo "FAVOR PREENCHER A CIDADE..." && sleep 3 && fnINFO ; }
 echo ""
 echo -e '\e[36;3m' " QUAL O NOME DA SUA ORGANIZACAO PARA O CERTIFICADO?    \e[m"
 echo "------------------------------------------------------------- "
 read -e ORGANIZACAO
+[[ -z $ORGANIZACAO ]] && { echo "FAVOR PREENCHER A ORGANIZACAO..." && sleep 3 && fnINFO ; }
 echo ""
 echo -e '\e[36;3m' " QUAL ENDERECO DE EMAIL PARA O CERTIFICADO?    \e[m"
 echo "------------------------------------------------------------- "
 read -e EMAIL
+[[ -z $EMAIL ]] && { echo "FAVOR PREENCHER O EMAIL..." && sleep 3 && fnINFO ; }
 echo ""
 echo -e '\e[36;3m' " QUAL HOSTNAME PARA ESTE SERVIDOR?    \e[m"
 echo -e '\e[36;3m' " DEFAULT: vpnserver   \e[m"
@@ -245,9 +247,10 @@ echo ""
 echo -e '\e[36;3m' " QUAL IP PARA ESTE SERVIDOR?    \e[m"
 echo "------------------------------------------------------------- "
 read -e IP
+[[ -z $IP ]] && { echo "FAVOR PREENCHER O IP DO SERVIDOR..." && sleep 3 && fnINFO ; }
 echo ""
 CHECKIP=$(cat /etc/network/interfaces | grep dhcp > /dev/null & echo $?)
-[[ $CHECKIP -eq 0 ]] && { echo "PARECE QUE O IP ESTA SENDO USADO POR DHCP, O CORRETO SERIA AJUSTAR PARA ESTATICO ..." && sleep 5 ; }
+[[ $CHECKIP -eq 0 ]] && { echo "PARECE QUE O IP ESTA SENDO USADO POR DHCP, O CORRETO SERIA AJUSTAR PARA ESTATICO ..." && sleep 3 ; }
 echo -e '\e[36;3m' " QUAL PORTA USAR NO SERVICO VPN?    \e[m"
 echo -e '\e[36;3m' " DEFAULT: 1194   \e[m"
 echo "------------------------------------------------------------- "
@@ -260,10 +263,23 @@ echo "------------------------------------------------------------- "
 read -e PROTO
 [[ -z $PROTO ]] && PROTO="udp" && echo $PROTO
 echo ""
-echo -e '\e[36;3m' " QUAL SERVIDOR DNS?    \e[m"
+echo -e '\e[36;3m' " QUAL REDE LAN SERA ACESSADA PELA VPN?    \e[m"
+echo -e '\e[36;3m' " A REDE LOCAL DA SUA EMPRESA OU CASA   \e[m"
+echo -e '\e[36;3m' " NESSE PADRAO:  r.e.d.e ma.sc.ar.a   \e[m"
+echo -e '\e[36;3m' " EX: 192.168.0.0 255.255.255.0   \e[m"
+echo "------------------------------------------------------------- "
+read -e REDE
+[[ -z "$REDE" ]] && { echo "ERRO... NECESSARIO ESPECIFICAR A REDE LOCAL!!!" && echo "REINICIANDO O PROCESSO..." && sleep 3 && fnINFO ; }
+CHECKREDE=$(echo "$REDE" | egrep '[0-9]{2,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3} 255\.255\.[0-9]{1,3}\.[0-9]{1,3}' > /dev/null 2>&1 ; echo $?)
+[[ $CHECKREDE -ne 0 ]] && { echo "INFORMACAO INCORRETA!  O PADRAO DEVE SER REDE E MASCARA" && echo "EX: 192.168.1.0 255.255.255.0" \
+&& echo "REINICIANDO O PROCESSO..." && sleep 5 && fnINFO  ; }
+echo ""
+echo -e '\e[36;3m' " QUAL SERVIDOR DNS PARA A REDE LAN DENTRO DA VPN?    \e[m"
 echo "------------------------------------------------------------- "
 read -e DNS
-echo ""
+[[ -z $DNS ]] && { echo "FAVOR PREENCHER O DNS..." && sleep 3 && fnINFO ; }
+
+
 clear && figlet -c "$VERSION"
 echo ""
 echo ""
@@ -280,6 +296,7 @@ echo -e '\e[36;3m' " HOSTNAME:  \e[m" $NAME
 echo -e '\e[36;3m' " IP:  \e[m" $IP
 echo -e '\e[36;3m' " PORTA:  \e[m" $PORTA
 echo -e '\e[36;3m' " PROTOCOLO:  \e[m" $PROTO
+echo -e '\e[36;3m' " REDE:  \e[m" $REDE
 echo -e '\e[36;3m' " DNS:  \e[m" $DNS
 echo ""
 echo ""
@@ -303,7 +320,7 @@ fi
 
 clear
 echo -e " CARREGANDO ..."
-VERSION="OpenVPN 1 Click 1.0"
+VERSION="OpenVPN 1 Click 1.1"
 ROOT=$(id -u)
 VER=$(cat /etc/debian_version | grep 11 > /dev/null 2>&1)
 [[ $ROOT -ne 0 ]] && echo -ne "\n\n     PRECISA EXECUTAR COMO ROOT\n             SAINDO ..." && exit
