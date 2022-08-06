@@ -51,7 +51,6 @@ cd /etc/openvpn
 echo "port $PORTA" > server/server.conf
 echo "proto $PROTO" >> server/server.conf
 echo "dev tun" >> server/server.conf
-echo "tun-mtu 1500" >> server/server.conf
 echo "mode server" >> server/server.conf
 echo "persist-tun" >> server/server.conf
 echo "persist-key" >> server/server.conf
@@ -63,8 +62,8 @@ echo "ca /etc/openvpn/server/keys/ca.crt" >> server/server.conf
 echo "cert /etc/openvpn/server/keys/$NAME.crt" >> server/server.conf
 echo "key /etc/openvpn/server/keys/$NAME.key" >> server/server.conf
 echo "dh /etc/openvpn/server/keys/dh.pem" >> server/server.conf
-echo "cipher AES-256-CBC" >> server/server.conf
-echo "data-ciphers AES-256-CBC:AES-256-GCM:AES-128-GCM" >> server/server.conf
+echo "data-ciphers AES-256-CBC" >> server/server.conf
+echo "data-ciphers-fallback AES-256-CBC" >> server/server.conf
 echo "topology subnet" >> server/server.conf
 echo "server 10.8.0.0 255.255.255.0" >> server/server.conf
 echo "ifconfig-pool-persist ipp.txt" >> server/server.conf
@@ -77,13 +76,14 @@ echo "client-to-client" >> server/server.conf
 echo "verb 3" >> server/server.conf
 echo "keepalive 15 60" >> server/server.conf
 echo "mute 20" >> server/server.conf
+
 echo "client" > client/client.base
 echo "dev tun" >> client/client.base
-echo "tun-mtu 1500" >> client/client.base
 echo "proto $PROTO" >> client/client.base
 echo "remote $IP $PORTA" >> client/client.base
 echo "auth SHA512" >> client/client.base
 echo "cipher AES-256-CBC" >> client/client.base
+echo "data-ciphers AES-256-CBC" >> client/client.base
 echo "resolv-retry infinite" >> client/client.base
 echo "nobind" >> client/client.base
 echo "persist-tun" >> client/client.base
@@ -91,6 +91,7 @@ echo "persist-key" >> client/client.base
 echo "remote-cert-tls server" >> client/client.base
 echo "verb 3" >> client/client.base
 echo "mute 20" >> client/client.base
+echo "auth-nocache" >> client/client.base
 KEY_DIR=server/keys
 OUTPUT_DIR=client
 BASE_CONFIG=$(cat client/client.base)
