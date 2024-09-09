@@ -5,12 +5,13 @@ VERSION="Waydroid LikeAPro 1.0"
 ##############################################################################################################
 #### AUTENTICAR ID DO DEVICE NO GOOGLE
 #
-# sudo waydroid shell
+# COMO ROOT
+# waydroid shell   /   sudo waydroid shell
 #
 # Dentro do shell que abrir:
 # ANDROID_RUNTIME_ROOT=/apex/com.android.runtime ANDROID_DATA=/data ANDROID_TZDATA_ROOT=/apex/com.android.tzdata ANDROID_I18N_ROOT=/apex/com.android.i18n sqlite3 /data/data/com.google.android.gsf/databases/gservices.db "select * from main where name = \"android_id\";"
 #
-# PEGAR O CODIGO GERADO E ATIVAR NO LINK ABAIXO (COM SUA CONTA GOOGLE)
+# PEGAR O CODIGO GERADO E ATIVAR NO LINK ABAIXO (DEVE LOGAR COM UMA CONTA GOOGLE)
 # https://www.google.com/android/uncertified
 ##############################################################################################################
 
@@ -57,7 +58,15 @@ waydroid container restart
 cd ..
 systemctl disable --now ufw.service firewall.service firewalld.service > /dev/null 2>&1
 sed -i '/GRUB_CMDLINE_LINUX_DEFAULT/d' /etc/default/grub
-echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash psi=1"' >> /etc/default/grub
+if [ $VERS = debian ]
+    then
+        echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash psi=1"' >> /etc/default/grub
+    else
+        echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash psi=1 $vt_handoff"' >> /etc/default/grub
+        sed -i '/GRUB_DEFAULT/ s/0/"1>2"/g' /etc/default/grub
+        sed -i '/GRUB_TIMEOUT/ s/0/3/g' /etc/default/grub
+        sed -i '/GRUB_TIMEOUT_STYLE/ s/hidden/menu/g' /etc/default/grub
+fi
 update-grub
 if [ $STYPE = x11 ]
     then
@@ -124,7 +133,7 @@ cat /proc/cpuinfo | grep flags | head -n1 | egrep 'sse2|cx8|fxsr' > /dev/null ; 
 cat /proc/cpuinfo | grep flags | head -n1 | egrep 'ssse3|sse4_1|sse4_2' > /dev/null ; [[ $? -eq 0 ]] && LEVEL=2
 cat /proc/cpuinfo | grep flags | head -n1 | egrep 'avx2|bmi|movbe' > /dev/null ; [[ $? -eq 0 ]] && LEVEL=3
 cat /proc/cpuinfo | grep flags | head -n1 | grep avx512 > /dev/null ; [[ $? -eq 0 ]] && LEVEL=4
-apt update > /dev/null && apt upgrade > /dev/null && apt install linux-xanmod-lts-x64v$LEVEL -y
+apt update > /dev/null 2>&1 && apt upgrade > /dev/null 2>&1 && apt install linux-xanmod-lts-x64v$LEVEL -y
 fnDOWN
 }
 
@@ -158,7 +167,8 @@ fnKERNEL
 clear
 echo -e " CARREGANDO ..."
 ROOT=$(id -u)
-VER=$(cat /etc/os-release | egrep 'debian|ubuntu' > /dev/null 2>&1 ; echo $?)
+VER=$(cat /etc/os-release | egrep -i 'debian|ubuntu' > /dev/null 2>&1 ; echo $?)
+VERF=$(cat /etc/os-release | grep -i ubuntu > /dev/null 2>&1 ; echo $?)
 RAM=$(free -h | grep Mem | awk '{print $2}' | cut -d, -f1)
 PROC=$(cat /proc/cpuinfo | grep -i intel > /dev/null ; echo $?)
 USU=$(ls -1 /home/ | head -n1)
@@ -168,6 +178,7 @@ VOUF=$(hostnamectl | grep Virtualization > /dev/null ; echo $?)
 [[ $ROOT -ne 0 ]] && echo -ne "\n\n     PRECISA EXECUTAR COMO ROOT\n\n SAINDO ...\n\n" && exit 1
 [[ $VER -ne 0 ]] && echo -ne "\n\n     SEU SISTEMA PRECISA SER:  DEBIAN / UBUNTU BASED\n\n SAINDO ...\n\n" && exit 1
 [[ $RAM -lt 7 ]] && echo -ne "\n\n     MEMORIA MINIMA NECESSARIA:  8 GB\n\n SAINDO ...\n\n" && exit 1
+[[ $VERF -eq 0 ]] && VERS="ubuntu" || VERS="debian"
 [[ $XDGS -eq 0 ]] && STYPE="wayland" || STYPE="x11"
 [[ $VOUF -eq 0 ]] && VTYPE="VM"
 export DEBIAN_FRONTEND=noninteractive
