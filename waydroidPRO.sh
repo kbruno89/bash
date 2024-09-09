@@ -67,8 +67,16 @@ fi
 echo "alias ANDROID='/home/$USU/.android.sh > /dev/null 2>&1 &'" >> /home/$USU/.bash_aliases
 chown $USU:$USU /home/$USU/.android.sh
 chmod 770 /home/$USU/.android.sh
+if [ $VTYPE = VM ]
+    then
+        echo "ro.hardware.gralloc=default" >> /var/lib/waydroid/waydroid.cfg
+        echo "ro.hardware.egl=swiftshader" >> /var/lib/waydroid/waydroid.cfg
+        waydroid upgrade -o
+fi
 fnFINISH
 }
+
+
 
 
 #5) fnINSTALL
@@ -98,8 +106,8 @@ fnDOWN(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
 echo -ne " BAIXANDO WAYDROID...\n\n"
-apt install ca-certificates git python3-venv python3-pip python3-pyclipper sudo -y > /dev/null
-adduser $USU sudo > /dev/null 2>&1
+apt install ca-certificates git python3-venv python3-pip sudo vim net-tools -y > /dev/null 2>&1
+adduser $USU sudo
 curl https://repo.waydro.id | bash
 apt install waydroid -y
 [[ $STYPE != wayland ]] && apt install weston -y
@@ -118,7 +126,7 @@ cat /proc/cpuinfo | grep flags | head -n1 | egrep 'sse2|cx8|fxsr' > /dev/null ; 
 cat /proc/cpuinfo | grep flags | head -n1 | egrep 'ssse3|sse4_1|sse4_2' > /dev/null ; [[ $? -eq 0 ]] && LEVEL=2
 cat /proc/cpuinfo | grep flags | head -n1 | egrep 'avx2|bmi|movbe' > /dev/null ; [[ $? -eq 0 ]] && LEVEL=3
 cat /proc/cpuinfo | grep flags | head -n1 | grep avx512 > /dev/null ; [[ $? -eq 0 ]] && LEVEL=4
-apt update && apt upgrade -y && apt install linux-xanmod-lts-x64v$LEVEL -y
+apt update > /dev/null && apt upgrade > /dev/null && apt install linux-xanmod-lts-x64v$LEVEL -y
 fnDOWN
 }
 
@@ -158,15 +166,17 @@ PROC=$(cat /proc/cpuinfo | grep -i intel > /dev/null ; echo $?)
 USU=$(ls -1 /home/ | head -n1)
 NENV=$(ps aux | grep gvfsd | head -n1 | awk '{print $2}')
 XDGS=$(cat /proc/$NENV/environ | grep wayland > /dev/null ; echo $?)
+VOUF=$(hostnamectl | grep Virtualization > /dev/null ; echo $?)
 [[ $ROOT -ne 0 ]] && echo -ne "\n\n     PRECISA EXECUTAR COMO ROOT\n\n SAINDO ...\n\n" && exit 1
 [[ $VER -ne 0 ]] && echo -ne "\n\n     SEU SISTEMA PRECISA SER:  DEBIAN / UBUNTU BASED\n\n SAINDO ...\n\n" && exit 1
 [[ $RAM -lt 7 ]] && echo -ne "\n\n     MEMORIA MINIMA NECESSARIA:  8 GB\n\n SAINDO ...\n\n" && exit 1
 [[ $XDGS -eq 0 ]] && STYPE="wayland" || STYPE="x11"
+[[ $VOUF -eq 0 ]] && VTYPE="VM"
 export DEBIAN_FRONTEND=noninteractive
 [[ $(cat /etc/sysctl.conf | grep vm.swappiness > /dev/null ; echo $?) -ne 0 ]] && echo "vm.swappiness=15" >> /etc/sysctl.conf && sysctl -p > /dev/null
 [[ $(cat /etc/environment | grep TERM > /dev/null ; echo $?) -ne 0 ]] && echo "TERM=xterm-256color" >> /etc/environment
 apt-get update -qq > /dev/null
-apt-get install curl figlet vim net-tools -qq > /dev/null
+apt-get install curl figlet -qq > /dev/null
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
 echo "Title          : $VERSION"
