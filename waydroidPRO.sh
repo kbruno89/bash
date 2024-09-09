@@ -43,7 +43,7 @@ fnAJUSTE(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
 echo -ne " AJUSTES PARA O MELHOR FUNCIONAMENTO DO WAYDROID...\n\n"
-systemct disable ufw.service firewall.service firewalld.service > /dev/null 2>&1
+systemctl disable --now ufw.service firewall.service firewalld.service > /dev/null 2>&1
 sed -i '/GRUB_CMDLINE_LINUX_DEFAULT/d' /etc/default/grub
 echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash psi=1"' >> /etc/default/grub
 update-grub
