@@ -43,6 +43,18 @@ fnAJUSTE(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
 echo -ne " AJUSTES PARA O MELHOR FUNCIONAMENTO DO WAYDROID...\n\n"
+git clone https://github.com/casualsnek/waydroid_script
+cd waydroid_script
+python3 -m venv venv
+venv/bin/pip install -r requirements.txt
+if [ $PROC -eq 0 ]
+    then
+        venv/bin/python3 main.py install libhoudini magisk widevine
+    else
+        venv/bin/python3 main.py install libndk magisk widevine
+fi
+waydroid container restart
+cd ..
 systemctl disable --now ufw.service firewall.service firewalld.service > /dev/null 2>&1
 sed -i '/GRUB_CMDLINE_LINUX_DEFAULT/d' /etc/default/grub
 echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash psi=1"' >> /etc/default/grub
@@ -77,26 +89,12 @@ fnFINISH
 }
 
 
-
-
 #5) fnINSTALL
 fnINSTALL(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
 echo -ne " INSTALANDO WAYDROID (COM PLAYSTORE)...\n\n"
 waydroid init -s GAPPS
-git clone https://github.com/casualsnek/waydroid_script
-cd waydroid_script
-python3 -m venv venv
-venv/bin/pip install -r requirements.txt
-if [ $PROC -eq 0 ]
-    then
-        venv/bin/python3 main.py install libhoudini magisk widevine
-    else
-        venv/bin/python3 main.py install libndk magisk widevine
-fi
-waydroid container restart
-cd ..
 fnAJUSTE
 }
 
