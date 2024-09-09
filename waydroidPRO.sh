@@ -98,7 +98,7 @@ fnDOWN(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
 echo -ne " BAIXANDO WAYDROID...\n\n"
-apt install ca-certificates git python3-venv python3-pip sudo -y
+apt install ca-certificates git python3-venv python3-pip python3-pyclipper sudo -y > /dev/null
 adduser $USU sudo > /dev/null 2>&1
 curl https://repo.waydro.id | bash
 apt install waydroid -y
