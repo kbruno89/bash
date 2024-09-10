@@ -47,7 +47,7 @@ echo -ne " AJUSTES PARA O MELHOR FUNCIONAMENTO DO WAYDROID...\n\n"
 git clone https://github.com/casualsnek/waydroid_script
 cd waydroid_script
 python3 -m venv venv
-venv/bin/pip install -r requirements.txt
+venv/bin/pip install -r requirements.txt 2>/dev/null
 if [ $PROC -eq 0 ]
     then
         venv/bin/python3 main.py install libhoudini magisk widevine
@@ -85,7 +85,7 @@ waydroid session stop
 waydroid show-full-ui
 EOF
 fi
-echo "alias ANDROID='/home/$USU/.android.sh > /dev/null 2>&1 &'" >> /home/$USU/.bash_aliases
+echo "alias ANDROID='nohup /home/$USU/.android.sh > /dev/null 2>&1 &'" >> /home/$USU/.bash_aliases
 chown $USU:$USU /home/$USU/.android.sh
 chmod 770 /home/$USU/.android.sh
 if [ $VTYPE = VM ]
@@ -94,6 +94,7 @@ if [ $VTYPE = VM ]
         echo "ro.hardware.egl=swiftshader" >> /var/lib/waydroid/waydroid.cfg
         waydroid upgrade -o
 fi
+apt clean && apt autoremove -y > /dev/null 2>&1
 fnFINISH
 }
 
@@ -112,9 +113,9 @@ fnAJUSTE
 fnDOWN(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
-echo -ne " BAIXANDO WAYDROID...\n\n"
+echo -ne " BAIXANDO WAYDROID E DEPENDENCIAS...\n\n"
 apt install ca-certificates git python3-venv python3-pip sudo vim net-tools -y > /dev/null 2>&1
-adduser $USU sudo
+adduser $USU sudo > /dev/null 2>&1
 curl https://repo.waydro.id | bash
 apt install waydroid -y
 [[ $STYPE != wayland ]] && apt install weston -y
