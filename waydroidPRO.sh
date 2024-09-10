@@ -94,6 +94,12 @@ if [ $VTYPE = VM ]
         echo "ro.hardware.egl=swiftshader" >> /var/lib/waydroid/waydroid.cfg
         waydroid upgrade -o
 fi
+if [ $VGA -eq 0 ]
+    then
+        echo "ro.hardware.gralloc=default" >> /var/lib/waydroid/waydroid.cfg
+        echo "ro.hardware.egl=swiftshader" >> /var/lib/waydroid/waydroid.cfg
+        waydroid upgrade -o
+fi
 apt clean && apt autoremove -y > /dev/null 2>&1
 fnFINISH
 }
@@ -113,7 +119,7 @@ fnAJUSTE
 fnDOWN(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
-echo -ne " BAIXANDO WAYDROID E DEPENDENCIAS...\n\n"
+echo -ne " BAIXANDO WAYDROID...\n\n"
 apt install ca-certificates git python3-venv python3-pip sudo vim net-tools -y > /dev/null 2>&1
 adduser $USU sudo > /dev/null 2>&1
 curl https://repo.waydro.id | bash
@@ -176,6 +182,7 @@ USU=$(ls -1 /home/ | head -n1)
 NENV=$(ps aux | grep gvfsd | head -n1 | awk '{print $2}')
 XDGS=$(cat /proc/$NENV/environ | grep wayland > /dev/null ; echo $?)
 VOUF=$(hostnamectl | grep Virtualization > /dev/null ; echo $?)
+VGA=$(lspci | grep VGA | grep -i nvidia > /dev/null ; echo $?)
 [[ $ROOT -ne 0 ]] && echo -ne "\n\n     PRECISA EXECUTAR COMO ROOT\n\n SAINDO ...\n\n" && exit 1
 [[ $VER -ne 0 ]] && echo -ne "\n\n     SEU SISTEMA PRECISA SER:  DEBIAN / UBUNTU BASED\n\n SAINDO ...\n\n" && exit 1
 [[ $RAM -lt 7 ]] && echo -ne "\n\n     MEMORIA MINIMA NECESSARIA:  8 GB\n\n SAINDO ...\n\n" && exit 1
