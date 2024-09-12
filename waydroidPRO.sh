@@ -1,8 +1,9 @@
 #!/bin/bash
 
-VERSION="Waydroid LikeAPro 1.3"
+VERSION="Waydroid LikeAPro 1.4"
 
 # CHANGELOG
+# 1.4 - Adicionado método para setar corretamente o kernel xanmod como DEFAULT
 # 1.3 - Adicionado função para identificar se existe mais de um usuário no sistema e indicar o correto
 # 1.2 - Corrigido bug que trancava o processo no apt upgrade    /    unificado função de validação VTYPE e VGA
 # 1.1 - Corrigido bug que traz a palavra "GiB" junto da memória RAM, pois a condição só aceita número inteiro
@@ -61,17 +62,24 @@ if [ $PROC -eq 0 ]
 fi
 waydroid container restart
 cd ..
-systemctl disable --now ufw.service firewall.service firewalld.service > /dev/null 2>&1
+systemctl disable --now ufw.service > /dev/null 2>&1 
+systemctl disable --now firewall.service  > /dev/null 2>&1
+systemctl disable --now firewalld.service > /dev/null 2>&1
 sed -i '/GRUB_CMDLINE_LINUX_DEFAULT/d' /etc/default/grub
 if [ $VERS = debian ]
     then
         echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash psi=1"' >> /etc/default/grub
     else
         echo 'GRUB_CMDLINE_LINUX_DEFAULT="quiet splash psi=1 $vt_handoff"' >> /etc/default/grub
-        sed -i '/GRUB_DEFAULT/ s/0/"1>2"/g' /etc/default/grub
-        sed -i '/GRUB_TIMEOUT/ s/0/3/g' /etc/default/grub
-        sed -i '/GRUB_TIMEOUT_STYLE/ s/hidden/menu/g' /etc/default/grub
 fi
+#sed -i '/GRUB_TIMEOUT/ s/0/3/g' /etc/default/grub
+#sed -i '/GRUB_TIMEOUT_STYLE/ s/hidden/menu/g' /etc/default/grub
+K1=$(grep submenu /boot/grub/grub.cfg | awk -F \' '{print $4}')
+K2=$(grep xanmod /boot/grub/grub.cfg | grep menuentry | grep -v recovery | awk -F \' '{print $4}')
+KOK="$K1>$K2"
+sed -i '/GRUB_DEFAULT/ s/0/"'$KOK'"/g' /etc/default/grub
+sed -i '/GRUB_TIMEOUT/d' /etc/default/grub
+echo "GRUB_TIMEOUT=0" >> /etc/default/grub
 update-grub
 if [ $STYPE = x11 ]
     then
