@@ -1,11 +1,11 @@
 #!/bin/bash
 
-VERSION="Waydroid LikeAPro 1.2"
+VERSION="Waydroid LikeAPro 1.3"
 
 # CHANGELOG
+# 1.3 - Adicionado função para identificar se existe mais de um usuário no sistema e indicar o correto
 # 1.2 - Corrigido bug que trancava o processo no apt upgrade    /    unificado função de validação VTYPE e VGA
 # 1.1 - Corrigido bug que traz a palavra "GiB" junto da memória RAM, pois a condição só aceita número inteiro
-
 
 ##############################################################################################################
 #### AUTENTICAR ID DO DEVICE NO GOOGLE
@@ -20,7 +20,7 @@ VERSION="Waydroid LikeAPro 1.2"
 # https://www.google.com/android/uncertified
 ##############################################################################################################
 
-#7) fnFINISH
+#8) fnFINISH
 fnFINISH(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
@@ -44,7 +44,7 @@ reboot
 }
 
 
-#6) fnAJUSTE
+#7) fnAJUSTE
 fnAJUSTE(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
@@ -104,7 +104,7 @@ fnFINISH
 }
 
 
-#5) fnINSTALL
+#6) fnINSTALL
 fnINSTALL(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
@@ -114,7 +114,7 @@ fnAJUSTE
 }
 
 
-#4) fnDOWN
+#5) fnDOWN
 fnDOWN(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
@@ -128,7 +128,7 @@ fnINSTALL
 }
 
 
-#3) fnKERNEL
+#4) fnKERNEL
 fnKERNEL(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
@@ -144,7 +144,7 @@ fnDOWN
 }
 
 
-#2) fnINFO
+#3) fnINFO
 fnINFO(){
 clear && figlet -c "$VERSION"
 echo -ne "\n\n"
@@ -169,6 +169,25 @@ fnKERNEL
 }
 
 
+#2) fnUSU
+fnUSU(){
+clear && figlet -c "$VERSION"
+echo -ne "\n\n"
+echo -ne " IDENTIFICANDO USUARIO...\n\n"
+if [ $VUSU -gt 1 ]
+        then
+                echo -ne " FOI IDENTIFICADO MAIS DE UM USUARIO EM SEU SISTEMA\n\n"
+                ls -1 /home | grep -v root
+                echo -ne "\n INFORME O USUARIO CORRETO:  " ; read USU
+                [[ -z $USU ]] && echo "OBRIGADO A INFORMAR O USUARIO..." && fnUSU
+        else
+                USU=$(ls -1 /home | grep -v root)
+                echo -ne "\n USUARIO: $USU" && sleep 3
+fi
+fnINFO
+}
+
+
 #1) TELA PRINCIPAL
 clear
 echo -e " CARREGANDO ..."
@@ -177,7 +196,7 @@ VER=$(cat /etc/os-release | egrep -i 'debian|ubuntu' > /dev/null 2>&1 ; echo $?)
 VERF=$(cat /etc/os-release | grep -i ubuntu > /dev/null 2>&1 ; echo $?)
 RAM=$(free -h | grep Mem | awk '{print $2}' | cut -d, -f1 | sed 's/[Gg]i//g')
 PROC=$(cat /proc/cpuinfo | grep -i intel > /dev/null ; echo $?)
-USU=$(ls -1 /home/ | head -n1)
+VUSU=$(ls -1 /home | grep -v root | wc -l)
 NENV=$(ps aux | grep gvfsd | head -n1 | awk '{print $2}')
 XDGS=$(cat /proc/$NENV/environ | grep wayland > /dev/null ; echo $?)
 VOUF=$(hostnamectl | grep Virtualization > /dev/null ; echo $?)
@@ -204,4 +223,4 @@ echo -e " DESEJA INICIAR O PROCESSO DE INSTALACAO DO WAYDROID NESTE SERVIDOR? [s
 echo -e " DEFAULT:  s"
 echo ""
 read resposta
-[[ -z $resposta || $resposta = [Ss] ]] && fnINFO || exit 1
+[[ -z $resposta || $resposta = [Ss] ]] && fnUSU || exit 1
