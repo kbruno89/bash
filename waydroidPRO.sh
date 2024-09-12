@@ -3,8 +3,9 @@
 VERSION="Waydroid LikeAPro 1.2"
 
 # CHANGELOG
-# 1.1 - Corrigido bug que traz a palavra "GiB" junto da memória RAM, pois a condição só aceita número inteiro
 # 1.2 - Corrigido bug que trancava o processo no apt upgrade    /    unificado função de validação VTYPE e VGA
+# 1.1 - Corrigido bug que traz a palavra "GiB" junto da memória RAM, pois a condição só aceita número inteiro
+
 
 ##############################################################################################################
 #### AUTENTICAR ID DO DEVICE NO GOOGLE
