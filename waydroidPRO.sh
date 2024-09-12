@@ -1,6 +1,9 @@
 #!/bin/bash
 
-VERSION="Waydroid LikeAPro 1.0"
+VERSION="Waydroid LikeAPro 1.1"
+
+# CHANGELOG
+# 1.1 - Corrigido bug que traz a palavra "GiB" junto da memória RAM, pois a condição só aceita número inteiro
 
 ##############################################################################################################
 #### AUTENTICAR ID DO DEVICE NO GOOGLE
@@ -176,7 +179,7 @@ echo -e " CARREGANDO ..."
 ROOT=$(id -u)
 VER=$(cat /etc/os-release | egrep -i 'debian|ubuntu' > /dev/null 2>&1 ; echo $?)
 VERF=$(cat /etc/os-release | grep -i ubuntu > /dev/null 2>&1 ; echo $?)
-RAM=$(free -h | grep Mem | awk '{print $2}' | cut -d, -f1)
+RAM=$(free -h | grep Mem | awk '{print $2}' | cut -d, -f1 | sed 's/[Gg]i//g')
 PROC=$(cat /proc/cpuinfo | grep -i intel > /dev/null ; echo $?)
 USU=$(ls -1 /home/ | head -n1)
 NENV=$(ps aux | grep gvfsd | head -n1 | awk '{print $2}')
