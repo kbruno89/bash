@@ -1,9 +1,10 @@
 #!/bin/bash
 
-VERSION="Waydroid LikeAPro 1.1"
+VERSION="Waydroid LikeAPro 1.2"
 
 # CHANGELOG
 # 1.1 - Corrigido bug que traz a palavra "GiB" junto da memória RAM, pois a condição só aceita número inteiro
+# 1.2 - Corrigido bug que trancava o processo no apt upgrade    /    unificado função de validação VTYPE e VGA
 
 ##############################################################################################################
 #### AUTENTICAR ID DO DEVICE NO GOOGLE
@@ -91,13 +92,7 @@ fi
 echo "alias ANDROID='nohup /home/$USU/.android.sh > /dev/null 2>&1 &'" >> /home/$USU/.bash_aliases
 chown $USU:$USU /home/$USU/.android.sh
 chmod 770 /home/$USU/.android.sh
-if [ $VTYPE = VM ]
-    then
-        echo "ro.hardware.gralloc=default" >> /var/lib/waydroid/waydroid.cfg
-        echo "ro.hardware.egl=swiftshader" >> /var/lib/waydroid/waydroid.cfg
-        waydroid upgrade -o
-fi
-if [ $VGA -eq 0 ]
+if [[ $VTYPE = VM || $VGA -eq 0 ]]
     then
         echo "ro.hardware.gralloc=default" >> /var/lib/waydroid/waydroid.cfg
         echo "ro.hardware.egl=swiftshader" >> /var/lib/waydroid/waydroid.cfg
