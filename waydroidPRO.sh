@@ -143,7 +143,7 @@ cat /proc/cpuinfo | grep flags | head -n1 | egrep 'sse2|cx8|fxsr' > /dev/null ; 
 cat /proc/cpuinfo | grep flags | head -n1 | egrep 'ssse3|sse4_1|sse4_2' > /dev/null ; [[ $? -eq 0 ]] && LEVEL=2
 cat /proc/cpuinfo | grep flags | head -n1 | egrep 'avx2|bmi|movbe' > /dev/null ; [[ $? -eq 0 ]] && LEVEL=3
 cat /proc/cpuinfo | grep flags | head -n1 | grep avx512 > /dev/null ; [[ $? -eq 0 ]] && LEVEL=4
-apt update > /dev/null 2>&1 && apt upgrade > /dev/null 2>&1 && apt install linux-xanmod-lts-x64v$LEVEL -y
+apt update > /dev/null 2>&1 && apt upgrade -y > /dev/null 2>&1 && apt install linux-xanmod-lts-x64v$LEVEL -y
 fnDOWN
 }
 
