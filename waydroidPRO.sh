@@ -234,7 +234,7 @@ echo "Description    : Implanta Waydroid Like a PRO!"
 echo "Author         : Bruno Kammers Ribeiro"
 echo "Version        : $(echo $VERSION | cut -d" " -f3)"
 echo -ne "\n\n\n\n"
-echo -e " DESEJA INICIAR O PROCESSO DE INSTALACAO DO WAYDROID NESTE SERVIDOR? [s/N]"
+echo -e " DESEJA INICIAR O PROCESSO DE INSTALACAO DO WAYDROID? [s/N]"
 echo -e " DEFAULT:  s"
 echo ""
 read resposta
