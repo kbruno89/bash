@@ -99,7 +99,7 @@ waydroid session stop
 waydroid show-full-ui
 EOF
 fi
-if [[ $SS = 0 ]]
+if [[ $SS -eq 0 ]]
     then
         echo "alias ANDROID='nohup /home/$USU/.android.sh > /dev/null 2>&1 &'" >> /home/$USU/.zshrc
     else
