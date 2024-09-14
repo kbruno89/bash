@@ -1,8 +1,9 @@
 #!/bin/bash
 
-VERSION="Waydroid LikeAPro 1.4"
+VERSION="Waydroid LikeAPro 1.5"
 
 # CHANGELOG
+# 1.5 - Adicionado método para identificar se o shell em uso é BASH ou ZSH
 # 1.4 - Adicionado método para setar corretamente o kernel xanmod como DEFAULT
 # 1.3 - Adicionado função para identificar se existe mais de um usuário no sistema e indicar o correto
 # 1.2 - Corrigido bug que trancava o processo no apt upgrade    /    unificado função de validação VTYPE e VGA
@@ -36,7 +37,7 @@ echo  -e "#                APOS REBOOT, INICIAR O WAYDROID PELO SHELL:          
 echo  -e "#                              (SEM ROOT)                                    #"
 echo  -e "#                                                                            #"
 echo  -e "#                                                                            #"
-echo  -e "#                      $ ANDROID (TUDO MAIUSCULO)                            #"
+echo  -e "#                      $ ANDROID  (TUDO MAIUSCULO)                           #"
 echo  -e "#                                                                            #"
 echo  -e "##############################################################################"
 echo -ne "\n\t PRESSIONE ENTER PARA REINICIAR..."
@@ -75,9 +76,9 @@ fi
 #sed -i '/GRUB_TIMEOUT/ s/0/3/g' /etc/default/grub
 #sed -i '/GRUB_TIMEOUT_STYLE/ s/hidden/menu/g' /etc/default/grub
 K1=$(grep submenu /boot/grub/grub.cfg | awk -F \' '{print $4}')
-K2=$(grep xanmod /boot/grub/grub.cfg | grep menuentry | grep -v recovery | awk -F \' '{print $4}')
-KOK="$K1>$K2"
-sed -i '/GRUB_DEFAULT/ s/0/"'$KOK'"/g' /etc/default/grub
+K2=$(grep xanmod /boot/grub/grub.cfg | grep menuentry | grep -v recovery | head -n1 | awk -F \' '{print $4}')
+K3="$K1>$K2"
+sed -i '/GRUB_DEFAULT/ s/0/"'$K3'"/g' /etc/default/grub
 sed -i '/GRUB_TIMEOUT/d' /etc/default/grub
 echo "GRUB_TIMEOUT=0" >> /etc/default/grub
 update-grub
@@ -98,7 +99,12 @@ waydroid session stop
 waydroid show-full-ui
 EOF
 fi
-echo "alias ANDROID='nohup /home/$USU/.android.sh > /dev/null 2>&1 &'" >> /home/$USU/.bash_aliases
+if [[ $SS = 0 ]]
+    then
+        echo "alias ANDROID='nohup /home/$USU/.android.sh > /dev/null 2>&1 &'" >> /home/$USU/.zshrc
+    else
+        echo "alias ANDROID='nohup /home/$USU/.android.sh > /dev/null 2>&1 &'" >> /home/$USU/.bash_aliases
+fi
 chown $USU:$USU /home/$USU/.android.sh
 chmod 770 /home/$USU/.android.sh
 if [[ $VTYPE = VM || $VGA -eq 0 ]]
@@ -187,10 +193,10 @@ if [ $VUSU -gt 1 ]
                 echo -ne " FOI IDENTIFICADO MAIS DE UM USUARIO EM SEU SISTEMA\n\n"
                 ls -1 /home | grep -v root
                 echo -ne "\n INFORME O USUARIO CORRETO:  " ; read USU
-                [[ -z $USU ]] && echo "OBRIGADO A INFORMAR O USUARIO..." && fnUSU
+                [[ -z $USU ]] && echo "OBRIGADO A INFORMAR O USUARIO..." && sleep 3 && fnUSU
         else
                 USU=$(ls -1 /home | grep -v root)
-                echo -ne "\n USUARIO: $USU" && sleep 3
+                echo -ne "\n USUARIO: $USU" && sleep 2
 fi
 fnINFO
 }
@@ -209,6 +215,7 @@ NENV=$(ps aux | grep gvfsd | head -n1 | awk '{print $2}')
 XDGS=$(cat /proc/$NENV/environ | grep wayland > /dev/null ; echo $?)
 VOUF=$(hostnamectl | grep Virtualization > /dev/null ; echo $?)
 VGA=$(lspci | grep VGA | grep -i nvidia > /dev/null ; echo $?)
+SS=$(echo $SHELL | grep zsh > /dev/null ; echo $?)
 [[ $ROOT -ne 0 ]] && echo -ne "\n\n     PRECISA EXECUTAR COMO ROOT\n\n SAINDO ...\n\n" && exit 1
 [[ $VER -ne 0 ]] && echo -ne "\n\n     SEU SISTEMA PRECISA SER:  DEBIAN / UBUNTU BASED\n\n SAINDO ...\n\n" && exit 1
 [[ $RAM -lt 7 ]] && echo -ne "\n\n     MEMORIA MINIMA NECESSARIA:  8 GB\n\n SAINDO ...\n\n" && exit 1
